@@ -58,6 +58,8 @@ def install():
         
         # Create Key
         key = winreg.CreateKey(winreg.HKEY_CLASSES_ROOT, key_path)
+        # Set Icon (uses the exe itself as the icon source)
+        winreg.SetValueEx(key, "Icon", 0, winreg.REG_SZ, target_exe)
         winreg.CloseKey(key)
         
         # Set Command
