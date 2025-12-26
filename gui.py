@@ -5,6 +5,16 @@ import sys
 import os
 from converter import scan_directory, convert_file
 
+def resource_path(relative_path):
+    """ Get absolute path to resource, works for dev and for PyInstaller """
+    try:
+        # PyInstaller creates a temp folder and stores path in _MEIPASS
+        base_path = sys._MEIPASS
+    except Exception:
+        base_path = os.path.abspath(".")
+
+    return os.path.join(base_path, relative_path)
+
 class ModernGUI:
     def __init__(self, root):
         self.root = root
@@ -13,7 +23,7 @@ class ModernGUI:
         self.root.minsize(500, 350)
         
         # Set Icon if available
-        icon_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "icons", "app.ico")
+        icon_path = resource_path(os.path.join("icons", "app.ico"))
         if os.path.exists(icon_path):
             try:
                 self.root.iconbitmap(icon_path)
@@ -152,13 +162,14 @@ class ProgressGUI:
         self.root.geometry("400x150")
         self.root.resizable(False, False)
         
-        # Set Icon
-        icon_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "icons", "app.ico")
+        # Set Icon if available
+        # Use resource_path to find icon inside the generic PyInstaller bundle
+        icon_path = resource_path(os.path.join("icons", "app.ico"))
         if os.path.exists(icon_path):
             try:
                 self.root.iconbitmap(icon_path)
             except tk.TclError:
-                pass
+                pass # Linux/Mac might not support .ico directly via iconbitmap
 
         # Style Configuration
         self.style = ttk.Style()

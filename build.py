@@ -18,6 +18,8 @@ def build():
         '--onefile',
         '--noconsole',  # Hide black window (we now have a GUI progress bar)
         '--icon=icons/app.ico',
+        # Embed icon file so gui.py can find it via resource_path
+        '--add-data=icons/app.ico:icons',
         '--collect-all=pillow_heif',
         '--clean',
     ])
