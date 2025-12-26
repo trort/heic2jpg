@@ -43,3 +43,9 @@ Based on `design_doc.md`.
 - [x] **Phase 7: Distribution (CI/CD)**
     - [x] Create `.github/workflows/build.yml`
     - [x] Automate Windows binary build and upload
+
+- [x] **Phase 8: UI Polish & Icons**
+    - [x] Remove background from icons and convert to `.ico`
+    - [x] Upgrade GUI to modern Windows style (ttk/ttkbootstrap)
+    - [x] Implement "Progress Only" GUI mode for Right-Click
+    - [x] Update build to use icons and hide console
