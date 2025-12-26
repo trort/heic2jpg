@@ -20,43 +20,63 @@ class ModernGUI:
             except tk.TclError:
                 pass # Linux/Mac might not support .ico directly via iconbitmap
 
-        # Style
+        # Style Configuration
         self.style = ttk.Style()
-        self.style.theme_use('clam')  # 'clam' is usually cleaner than default on Windows
+        
+        # Try native theme first
+        available_themes = self.style.theme_names()
+        if 'vista' in available_themes:
+            self.style.theme_use('vista')
+        elif 'clam' in available_themes:
+            self.style.theme_use('clam')
+
+        # Define modern colors (Windows 11 Light Mode vibe)
+        bg_color = "#ffffff"
+        text_color = "#202020"
+        
+        # Configure Root background
+        self.root.configure(bg=bg_color)
+        
+        # Configure Global Styles
+        self.style.configure(".", background=bg_color, foreground=text_color, font=("Segoe UI", 10))
+        self.style.configure("TFrame", background=bg_color)
+        self.style.configure("TLabelframe", background=bg_color, foreground=text_color)
+        self.style.configure("TLabelframe.Label", background=bg_color, foreground=text_color, font=("Segoe UI", 9, "bold"))
+        
         self.style.configure("TButton", font=("Segoe UI", 10), padding=6)
-        self.style.configure("TLabel", font=("Segoe UI", 11))
-        self.style.configure("Header.TLabel", font=("Segoe UI", 16, "bold"))
-        self.style.configure("Status.TLabel", font=("Segoe UI", 9), foreground="#666")
+        
+        self.style.configure("Header.TLabel", font=("Segoe UI", 20, "bold"), foreground="#000000", background=bg_color)
+        self.style.configure("Status.TLabel", font=("Segoe UI", 9), foreground="#666666", background=bg_color)
 
         # Layout
-        main_frame = ttk.Frame(root, padding="30 30 30 20")
+        main_frame = ttk.Frame(root, padding="40 30 40 30")
         main_frame.pack(fill="both", expand=True)
 
         # Header
         lbl_header = ttk.Label(main_frame, text="HEIC to JPG Converter", style="Header.TLabel")
-        lbl_header.pack(pady=(0, 20))
+        lbl_header.pack(pady=(0, 30))
 
         # Folder Selection
-        folder_frame = ttk.LabelFrame(main_frame, text="Target Directory", padding="15 15 15 15")
-        folder_frame.pack(fill="x", pady=(0, 20))
+        folder_frame = ttk.LabelFrame(main_frame, text="Target Directory", padding="15")
+        folder_frame.pack(fill="x", pady=(0, 25))
 
         self.var_dir = tk.StringVar()
         entry_dir = ttk.Entry(folder_frame, textvariable=self.var_dir)
-        entry_dir.pack(side="left", fill="x", expand=True, padx=(0, 10))
+        entry_dir.pack(side="left", fill="x", expand=True, padx=(0, 10), ipady=3)
         
-        btn_browse = ttk.Button(folder_frame, text="Browse Folder", command=self.browse_directory)
+        btn_browse = ttk.Button(folder_frame, text="Browse...", command=self.browse_directory)
         btn_browse.pack(side="right")
 
         # Action Area
         self.btn_start = ttk.Button(main_frame, text="Start Conversion", command=self.start_conversion_thread, state="disabled")
-        self.btn_start.pack(pady=10, ipady=5, ipadx=20)
+        self.btn_start.pack(pady=10, ipady=5, ipadx=30)
         
         # Log Area
-        self.text_log = tk.Text(main_frame, height=8, width=50, bd=1, relief="solid", font=("Consolas", 9), state="disabled")
-        self.text_log.pack(fill="both", expand=True, pady=10)
+        self.text_log = tk.Text(main_frame, height=8, bd=1, relief="solid", font=("Consolas", 9), state="disabled", bg="#f9f9f9")
+        self.text_log.pack(fill="both", expand=True, pady=15)
 
         # Status Bar
-        self.lbl_status = ttk.Label(main_frame, text="Ready to start.", style="Status.TLabel")
+        self.lbl_status = ttk.Label(main_frame, text="Ready.", style="Status.TLabel")
         self.lbl_status.pack(anchor="w")
 
     def browse_directory(self):
@@ -140,23 +160,57 @@ class ProgressGUI:
             except tk.TclError:
                 pass
 
-        # Style
-        style = ttk.Style()
-        style.theme_use('clam')
-        style.configure("TLabel", font=("Segoe UI", 10))
+        # Style Configuration
+        self.style = ttk.Style()
+        
+        # Try to use a native-looking theme if available
+        available_themes = self.style.theme_names()
+        if 'vista' in available_themes:
+            self.style.theme_use('vista')
+        elif 'clam' in available_themes:
+            self.style.theme_use('clam')
 
-        # UI
-        main_frame = ttk.Frame(root, padding=20)
+        # Define modern colors and fonts
+        bg_color = "#ffffff"  # White background for a cleaner look
+        text_color = "#333333"
+        accent_color = "#0078d4" # Windows Blue
+        
+        # Configure Root background (Tkinter standard widgets needs this)
+        self.root.configure(bg=bg_color)
+        
+        # Configure Ttk widget styles
+        self.style.configure(".", background=bg_color, foreground=text_color, font=("Segoe UI", 10))
+        self.style.configure("TFrame", background=bg_color)
+        self.style.configure("TLabelframe", background=bg_color, foreground=text_color)
+        self.style.configure("TLabelframe.Label", background=bg_color, foreground=text_color, font=("Segoe UI", 9, "bold"))
+        
+        self.style.configure("TButton", font=("Segoe UI", 10), padding=6)
+        self.style.map("TButton",
+            background=[("active", "#e1e1e1"), ("!disabled", "#f0f0f0")],
+            foreground=[("!disabled", "black")]
+        )
+        
+        self.style.configure("Header.TLabel", font=("Segoe UI", 18, "bold"), foreground="#000000", background=bg_color)
+        self.style.configure("Status.TLabel", font=("Segoe UI", 9), foreground="#666666", background=bg_color)
+        self.style.configure("Info.TLabel", font=("Segoe UI", 11), background=bg_color)
+
+        # UI Layout
+        main_frame = ttk.Frame(root, padding=30)
         main_frame.pack(fill="both", expand=True)
 
-        self.lbl_title = ttk.Label(main_frame, text="Converting HEIC to JPG", font=("Segoe UI", 12, "bold"))
-        self.lbl_title.pack(anchor="w", pady=(0, 10))
+        self.lbl_title = ttk.Label(main_frame, text="Converting HEIC to JPG", style="Header.TLabel")
+        self.lbl_title.pack(anchor="w", pady=(0, 20))
 
-        self.lbl_status = ttk.Label(main_frame, text=f"Scanning {os.path.basename(directory)}...")
-        self.lbl_status.pack(anchor="w", pady=(0, 5))
+        # "Progress 15/25"
+        self.lbl_counter = ttk.Label(main_frame, text="Preparing...", style="Info.TLabel")
+        self.lbl_counter.pack(anchor="w", pady=(0, 5))
+
+        # "Converting IMG_1234.HEIC"
+        self.lbl_current_file = ttk.Label(main_frame, text="Scanning...", style="Status.TLabel")
+        self.lbl_current_file.pack(anchor="w", pady=(0, 15))
 
         self.progress = ttk.Progressbar(main_frame, orient="horizontal", length=350, mode="determinate")
-        self.progress.pack(pady=10)
+        self.progress.pack(fill="x", pady=(0, 10))
 
         # Start automatically
         self.root.after(100, self.start_thread)
@@ -169,22 +223,29 @@ class ProgressGUI:
         try:
             files = scan_directory(self.directory)
             if not files:
-                self.root.after(0, lambda: self.lbl_status.config(text="No HEIC files found."))
+                self.root.after(0, lambda: self.lbl_current_file.config(text="No HEIC files found."))
                 self.root.after(2000, self.root.destroy)
                 return
 
-            self.root.after(0, lambda: self.progress.config(maximum=len(files), value=0))
+            total_files = len(files)
+            self.root.after(0, lambda: self.progress.config(maximum=total_files, value=0))
+            self.root.after(0, lambda: self.lbl_counter.config(text=f"Progress 0/{total_files}"))
             
             for i, f in enumerate(files):
-                self.root.after(0, lambda name=f: self.lbl_status.config(text=f"Converting: {os.path.basename(name)}"))
+                filename = os.path.basename(f)
+                # Update UI
+                self.root.after(0, lambda name=filename: self.lbl_current_file.config(text=f"Converting {name}..."))
+                self.root.after(0, lambda count=i+1: self.lbl_counter.config(text=f"Progress {count}/{total_files}"))
+                
                 convert_file(f)
+                
                 self.root.after(0, lambda: self.progress.step(1))
             
-            self.root.after(0, lambda: self.lbl_status.config(text="Done!"))
+            self.root.after(0, lambda: self.lbl_counter.config(text="Completed"))
+            self.root.after(0, lambda: self.lbl_current_file.config(text="All files converted successfully."))
             
             if self.auto_close:
-                # Close after 1 second
                 self.root.after(1000, self.root.destroy)
                 
         except Exception as e:
-            self.root.after(0, lambda: self.lbl_status.config(text=f"Error: {str(e)}"))
+            self.root.after(0, lambda: self.lbl_current_file.config(text=f"Error: {str(e)}"))
