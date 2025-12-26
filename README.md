@@ -14,11 +14,18 @@ A robust, standalone Windows utility to convert `.heic` files to `.jpg`.
 
 ## How to Install (End User)
 
-1.  Download the `dist` folder.
-2.  Run `install.exe` (found inside `dist`).
-    *   Grant Administrator privileges when prompted.
-    *   This will copy the app to your local data folder and register the right-click menu item.
-3.  **Done!** Right-click any folder containing HEIC files and choose **"Convert HEIC to JPG"**.
+### Option A: Download from GitHub (Recommended)
+1.  Go to the **Actions** tab in this repository.
+2.  Click on the latest "Build Windows Executable" run.
+3.  Scroll down to **Artifacts** and download `Windows-Binaries`.
+4.  Extract the zip file.
+5.  Run `install.exe` (Run as Admin).
+
+### Option B: Build from Source
+If you prefer to build it yourself:
+1.  Download the `dist` folder (after building locally).
+2.  Run `install.exe`.
+
 
 ## How to Build (Developer)
 

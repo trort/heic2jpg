@@ -39,3 +39,7 @@ Based on `design_doc.md`.
     - [x] Test with duplicate filenames
     - [x] Test with large batch of images
     - [x] Test with non-English (Unicode) characters
+
+- [x] **Phase 7: Distribution (CI/CD)**
+    - [x] Create `.github/workflows/build.yml`
+    - [x] Automate Windows binary build and upload
