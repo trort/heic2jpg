@@ -2,38 +2,40 @@
 
 Based on `design_doc.md`.
 
-- [ ] **Phase 1: Environment & Dependencies**
-    - [ ] Create virtual environment
-    - [ ] Install dependencies: `Pillow`, `pillow-heif`, `tkinter` (std lib), `PyInstaller`
-    - [ ] Create `requirements.txt`
+- [x] **Phase 1: Environment & Dependencies**
+    - [x] Create virtual environment
+    - [x] Install dependencies: `Pillow`, `pillow-heif`, `tkinter` (std lib), `PyInstaller`
+    - [x] Create `requirements.txt`
 
-- [ ] **Phase 2: Core Logic Development**
-    - [ ] Implement `scan_directory(path)` function
-    - [ ] Implement `convert_heic_to_jpg(file_path)` function
-        - Include RGBA -> RGB conversion
-    - [ ] Add error handling (try/except) for corrupt files
-    - [ ] Add simple logging/print statements
+- [x] **Phase 2: Core Logic Development**
+    - [x] Implement `scan_directory(path)` function
+    - [x] Implement `convert_heic_to_jpg(file_path)` function
+        - [x] Include RGBA -> RGB conversion
+    - [x] Add error handling (try/except) for corrupt files
+    - [x] Add simple logging/print statements
 
-- [ ] **Phase 3: Interface Implementation**
-    - [ ] Implement logic to detect CLI arguments vs GUI launch
-    - [ ] **Branch A (CLI/Context Menu):**
-        - [ ] Execute conversion on provided folder path
-        - [ ] (Optional) Show progress bar/console
-    - [ ] **Branch B (GUI):**
-        - [ ] Create Tkinter window
-        - [ ] Add "Select Folder" button
-        - [ ] Add "Start" button
-        - [ ] Show completion message
+- [x] **Phase 3: Interface Implementation**
+    - [x] Implement logic to detect CLI arguments vs GUI launch
+    - [x] **Branch A (CLI/Context Menu):**
+        - [x] Execute conversion on provided folder path
+        - [x] (Optional) Show progress bar/console
+    - [x] **Branch B (GUI):**
+        - [x] Create Tkinter window
+        - [x] Add "Select Folder" button
+        - [x] Add "Start" button
+        - [x] Show completion message
 
-- [ ] **Phase 4: Packaging**
-    - [ ] Create PyInstaller spec/command
-    - [ ] Ensure `pillow-heif` binaries are included
-    - [ ] Build `--onefile` executable
+- [x] **Phase 4: Packaging**
+    - [x] Create PyInstaller spec/command
+    - [x] Ensure `pillow-heif` binaries are included
+    - [x] Build `--onefile` executable
 
-- [ ] **Phase 5: System Integration**
-    - [ ] Create `.reg` file for Windows Context Menu integration
+- [x] **Phase 5: System Integration (Installer)**
+    - [x] Create `install.py` using `winreg` and `ctypes` (for admin elevation)
+    - [x] Build `install.exe` that sets up registry keys automatically
 
-- [ ] **Phase 6: Testing**
-    - [ ] Test with paths containing spaces
-    - [ ] Test with duplicate filenames
-    - [ ] Test with large batch of images
+- [x] **Phase 6: Testing**
+    - [x] Test with paths containing spaces
+    - [x] Test with duplicate filenames
+    - [x] Test with large batch of images
+    - [x] Test with non-English (Unicode) characters
