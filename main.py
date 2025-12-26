@@ -1,41 +1,36 @@
 import sys
+import tkinter as tk
 from converter import scan_directory, convert_file
 
 def main():
-    # Branch A: CLI Mode (Arguments provided)
+    # Branch A: CLI Mode (Arguments provided -> Right Click Menu)
     if len(sys.argv) > 1:
         directory = sys.argv[1]
-        print(f"Scanning '{directory}' for .heic files...")
         
-        files = scan_directory(directory)
-        if not files:
-            print("No .heic files found.")
-            return
+        # Use simple Progress GUI instead of console print statements
+        try:
+            from gui import ProgressGUI
+            root = tk.Tk()
+            app = ProgressGUI(root, directory, auto_close=True)
+            root.mainloop()
+        except Exception as e:
+            # Fallback to console if GUI fails
+            print(f"Error launching progress GUI: {e}")
+            print(f"Scanning '{directory}'...")
+            files = scan_directory(directory)
+            for f in files:
+                convert_file(f)
 
-        print(f"Found {len(files)} files. Starting conversion...")
-        
-        success_count = 0
-        for f in files:
-            if convert_file(f):
-                success_count += 1
-                
-        print(f"Done. Successfully converted {success_count}/{len(files)} files.")
-        
-        # Keep window open briefly if launched via double-click/context menu (optional behavior check)
-        # For now, we just exit.
-
-    # Branch B: GUI Mode (No arguments)
+    # Branch B: GUI Mode (No arguments -> Double Click)
     else:
         try:
-            import tkinter as tk
-            from gui import ConverterGUI
+            from gui import ModernGUI
             root = tk.Tk()
-            app = ConverterGUI(root)
+            app = ModernGUI(root)
             root.mainloop()
-        except ImportError:
-            print("Error: Tkinter not found. Cannot launch GUI.")
         except Exception as e:
             print(f"Error launching GUI: {e}")
+            input("Press Enter to exit...")
 
 if __name__ == "__main__":
     main()

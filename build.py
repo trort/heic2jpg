@@ -16,7 +16,8 @@ def build():
         'main.py',
         '--name=HEIC2JPG',
         '--onefile',
-        '--console',
+        '--noconsole',  # Hide black window (we now have a GUI progress bar)
+        '--icon=icons/app.ico',
         '--collect-all=pillow_heif',
         '--clean',
     ])
@@ -26,7 +27,8 @@ def build():
         'install.py',
         '--name=install',
         '--onefile',
-        '--console',
+        '--console',  # Installer still needs console for now/simplicity or can be GUI too, keeping console for debug feedback
+        '--icon=icons/install.ico',
         '--clean',
     ])
     
