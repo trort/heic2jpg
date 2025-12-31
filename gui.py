@@ -19,6 +19,7 @@ class ConflictDialog(tk.Toplevel):
     def __init__(self, parent, filename):
         super().__init__(parent)
         self.title("File Conflict")
+        self.configure(bg="#ffffff") # White background
         self.geometry("550x200")
         self.resizable(False, False)
         self.grab_set() # Modal
@@ -28,35 +29,41 @@ class ConflictDialog(tk.Toplevel):
         
         # Center the window
         self.update_idletasks()
-        # Use explicit dimensions matching geometry above
         width = 550
         height = 200
         x = parent.winfo_rootx() + (parent.winfo_width() - width) // 2
         y = parent.winfo_rooty() + (parent.winfo_height() - height) // 2
         self.geometry(f"{width}x{height}+{x}+{y}")
         
-        # UI
-        # Single line message (truncated if too long, or wrapped, but user requested compact single line feel)
-        msg_text = f"File already exists: {filename}"
-        if len(msg_text) > 60:
-            msg_text = f"File already exists: ...{filename[-40:]}"
-            
-        ttk.Label(self, text=msg_text, font=("Segoe UI", 10)).pack(pady=(25, 20))
+        # Main Container with White Background
+        main_frame = ttk.Frame(self, padding=20)
+        main_frame.pack(fill="both", expand=True)
+        # Force styles for this Toplevel if needed, but since we use ttk Frame, it should pick up global style.
+        # However, to be safe against gray toplevel background, we set bg="#ffffff" on self.
         
-        btn_frame = ttk.Frame(self)
-        btn_frame.pack(fill="x", padx=20, pady=10)
+        # Message Area
+        # Two lines as requested: "File already exists:" then Filename
+        ttk.Label(main_frame, text="File already exists:", font=("Segoe UI", 10)).pack(anchor="center", pady=(5, 2))
         
-        # Grid or Pack side-by-side
-        # To make them equal width, we can use grid with weight, or pack with expand
-        # Pack side=left with expand=True will space them out. 
-        # But we want them centered maybe? Or filling the width? Let's try filling width equally.
+        # Filename - Highlighted (Bold)
+        # Truncate middle if extremely long to avoid window expansion issues
+        display_name = filename
+        if len(display_name) > 50:
+             display_name = display_name[:20] + "..." + display_name[-25:]
+             
+        ttk.Label(main_frame, text=display_name, font=("Segoe UI", 11, "bold"), foreground="#0078d4").pack(anchor="center", pady=(0, 10))
         
+        # Buttons Area
+        btn_frame = ttk.Frame(main_frame)
+        btn_frame.pack(fill="x", pady=5)
+        
+        # Side by side buttons
         ttk.Button(btn_frame, text="Overwrite", command=lambda: self.set_result("overwrite")).pack(side="left", fill="x", expand=True, padx=5)
         ttk.Button(btn_frame, text="Rename", command=lambda: self.set_result("rename")).pack(side="left", fill="x", expand=True, padx=5)
         ttk.Button(btn_frame, text="Skip", command=lambda: self.set_result("skip")).pack(side="left", fill="x", expand=True, padx=5)
         
         self.var_apply = tk.BooleanVar(value=True) # Default True per user request
-        ttk.Checkbutton(self, text="Apply to all remaining conflicts", variable=self.var_apply).pack(pady=(10, 20))
+        ttk.Checkbutton(main_frame, text="Apply to all remaining conflicts", variable=self.var_apply).pack(pady=(5, 0))
         
     def set_result(self, action):
         self.result = action
