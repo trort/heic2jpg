@@ -19,7 +19,7 @@ class ConflictDialog(tk.Toplevel):
     def __init__(self, parent, filename):
         super().__init__(parent)
         self.title("File Conflict")
-        self.geometry("400x220")
+        self.geometry("550x200")
         self.resizable(False, False)
         self.grab_set() # Modal
         
@@ -28,23 +28,35 @@ class ConflictDialog(tk.Toplevel):
         
         # Center the window
         self.update_idletasks()
-        x = parent.winfo_rootx() + (parent.winfo_width() - 400) // 2
-        y = parent.winfo_rooty() + (parent.winfo_height() - 220) // 2
-        self.geometry(f"+{x}+{y}")
+        # Use explicit dimensions matching geometry above
+        width = 550
+        height = 200
+        x = parent.winfo_rootx() + (parent.winfo_width() - width) // 2
+        y = parent.winfo_rooty() + (parent.winfo_height() - height) // 2
+        self.geometry(f"{width}x{height}+{x}+{y}")
         
         # UI
-        ttk.Label(self, text="File already exists:", font=("Segoe UI", 10)).pack(pady=(20, 5))
-        ttk.Label(self, text=filename, font=("Segoe UI", 10, "bold")).pack(pady=(0, 20))
+        # Single line message (truncated if too long, or wrapped, but user requested compact single line feel)
+        msg_text = f"File already exists: {filename}"
+        if len(msg_text) > 60:
+            msg_text = f"File already exists: ...{filename[-40:]}"
+            
+        ttk.Label(self, text=msg_text, font=("Segoe UI", 10)).pack(pady=(25, 20))
         
         btn_frame = ttk.Frame(self)
-        btn_frame.pack(fill="x", padx=40)
+        btn_frame.pack(fill="x", padx=20, pady=10)
         
-        ttk.Button(btn_frame, text="Overwrite", command=lambda: self.set_result("overwrite")).pack(fill="x", pady=5)
-        ttk.Button(btn_frame, text="Rename (auto)", command=lambda: self.set_result("rename")).pack(fill="x", pady=5)
-        ttk.Button(btn_frame, text="Skip", command=lambda: self.set_result("skip")).pack(fill="x", pady=5)
+        # Grid or Pack side-by-side
+        # To make them equal width, we can use grid with weight, or pack with expand
+        # Pack side=left with expand=True will space them out. 
+        # But we want them centered maybe? Or filling the width? Let's try filling width equally.
+        
+        ttk.Button(btn_frame, text="Overwrite", command=lambda: self.set_result("overwrite")).pack(side="left", fill="x", expand=True, padx=5)
+        ttk.Button(btn_frame, text="Rename", command=lambda: self.set_result("rename")).pack(side="left", fill="x", expand=True, padx=5)
+        ttk.Button(btn_frame, text="Skip", command=lambda: self.set_result("skip")).pack(side="left", fill="x", expand=True, padx=5)
         
         self.var_apply = tk.BooleanVar(value=True) # Default True per user request
-        ttk.Checkbutton(self, text="Apply to all remaining conflicts", variable=self.var_apply).pack(pady=15)
+        ttk.Checkbutton(self, text="Apply to all remaining conflicts", variable=self.var_apply).pack(pady=(10, 20))
         
     def set_result(self, action):
         self.result = action
