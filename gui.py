@@ -15,6 +15,42 @@ def resource_path(relative_path):
 
     return os.path.join(base_path, relative_path)
 
+class ConflictDialog(tk.Toplevel):
+    def __init__(self, parent, filename):
+        super().__init__(parent)
+        self.title("File Conflict")
+        self.geometry("400x220")
+        self.resizable(False, False)
+        self.grab_set() # Modal
+        
+        self.result = "skip"
+        self.apply_to_all = False
+        
+        # Center the window
+        self.update_idletasks()
+        x = parent.winfo_rootx() + (parent.winfo_width() - 400) // 2
+        y = parent.winfo_rooty() + (parent.winfo_height() - 220) // 2
+        self.geometry(f"+{x}+{y}")
+        
+        # UI
+        ttk.Label(self, text="File already exists:", font=("Segoe UI", 10)).pack(pady=(20, 5))
+        ttk.Label(self, text=filename, font=("Segoe UI", 10, "bold")).pack(pady=(0, 20))
+        
+        btn_frame = ttk.Frame(self)
+        btn_frame.pack(fill="x", padx=40)
+        
+        ttk.Button(btn_frame, text="Overwrite", command=lambda: self.set_result("overwrite")).pack(fill="x", pady=5)
+        ttk.Button(btn_frame, text="Rename (auto)", command=lambda: self.set_result("rename")).pack(fill="x", pady=5)
+        ttk.Button(btn_frame, text="Skip", command=lambda: self.set_result("skip")).pack(fill="x", pady=5)
+        
+        self.var_apply = tk.BooleanVar(value=True) # Default True per user request
+        ttk.Checkbutton(self, text="Apply to all remaining conflicts", variable=self.var_apply).pack(pady=15)
+        
+    def set_result(self, action):
+        self.result = action
+        self.apply_to_all = self.var_apply.get()
+        self.destroy()
+
 class ModernGUI:
     def __init__(self, root):
         self.root = root
@@ -77,6 +113,27 @@ class ModernGUI:
         btn_browse = ttk.Button(folder_frame, text="Browse...", command=self.browse_directory)
         btn_browse.pack(side="right")
 
+        # Options Area
+        options_frame = ttk.LabelFrame(main_frame, text="Options", padding="15")
+        options_frame.pack(fill="x", pady=(0, 20))
+        
+        # Recursive
+        self.var_recursive = tk.BooleanVar(value=True)
+        chk_recursive = ttk.Checkbutton(options_frame, text="Recursive Scan", variable=self.var_recursive)
+        chk_recursive.pack(anchor="w", pady=(0, 10))
+        
+        # Overwrite Policy
+        lbl_overwrite = ttk.Label(options_frame, text="If file exists:")
+        lbl_overwrite.pack(anchor="w", pady=(0, 5))
+        
+        self.combo_overwrite = ttk.Combobox(options_frame, state="readonly", values=[
+            "Overwrite existing", 
+            "Skip existing", 
+            "Save to 'converted' folder"
+        ])
+        self.combo_overwrite.current(0) # Default to Overwrite (or should be Separate Folder? User said give option. Let's stick to Overwrite as index 0 or Separate as index 2. I'll pick Overwrite as default to match old behavior but Separate is cleaner. Let's stick to Overwrite being default for now unless specified.)
+        self.combo_overwrite.pack(fill="x")
+
         # Action Area
         self.btn_start = ttk.Button(main_frame, text="Start Conversion", command=self.start_conversion_thread, state="disabled")
         self.btn_start.pack(pady=10, ipady=5, ipadx=30)
@@ -107,20 +164,32 @@ class ModernGUI:
         if not directory:
             return
             
+        # Get Settings
+        recursive = self.var_recursive.get()
+        overwrite_choice = self.combo_overwrite.get()
+        
+        # Map choice to policy string
+        policy_map = {
+            "Overwrite existing": "overwrite",
+            "Skip existing": "skip",
+            "Save to 'converted' folder": "subfolder"
+        }
+        policy = policy_map.get(overwrite_choice, "overwrite")
+
         self.btn_start["state"] = "disabled"
         self.lbl_status["text"] = "Scanning directory..."
         
-        thread = threading.Thread(target=self.run_conversion, args=(directory,))
+        thread = threading.Thread(target=self.run_conversion, args=(directory, recursive, policy))
         thread.start()
         
-    def run_conversion(self, directory):
+    def run_conversion(self, directory, recursive, policy):
         try:
-            files = scan_directory(directory)
+            files = scan_directory(directory, recursive=recursive)
             
             if not files:
                 self.root.after(0, lambda: self.finish_conversion(0, 0, "No HEIC files found."))
                 return
-
+            
             self.root.after(0, lambda: self.log(f"Found {len(files)} files. Processing..."))
             
             success_count = 0
@@ -128,11 +197,12 @@ class ModernGUI:
                 pct = int(((i + 1) / len(files)) * 100)
                 self.root.after(0, lambda idx=i, total=len(files): self.lbl_status.config(text=f"Converting {idx+1}/{total}"))
                 
-                if convert_file(f):
+                # Standalone always preserves EXIF now (per user request)
+                if convert_file(f, overwrite_policy=policy):
                     success_count += 1
                     self.root.after(0, lambda name=f: self.log(f"✓ {os.path.basename(name)}"))
                 else:
-                    self.root.after(0, lambda name=f: self.log(f"✗ Failed: {os.path.basename(name)}"))
+                    self.root.after(0, lambda name=f: self.log(f"✗ Failed/Skipped: {os.path.basename(name)}"))
             
             self.root.after(0, lambda: self.finish_conversion(success_count, len(files)))
             
@@ -157,6 +227,9 @@ class ProgressGUI:
         self.root = root
         self.directory = directory
         self.auto_close = auto_close
+        
+        # Conflict state
+        self.conflict_decision_memory = None
         
         self.root.title("Converting...")
         self.root.geometry("400x150")
@@ -248,7 +321,8 @@ class ProgressGUI:
                 self.root.after(0, lambda name=filename: self.lbl_current_file.config(text=f"Converting {name}..."))
                 self.root.after(0, lambda count=i+1: self.lbl_counter.config(text=f"Progress {count}/{total_files}"))
                 
-                convert_file(f)
+                # Use interactive policy with our callback
+                convert_file(f, overwrite_policy='interactive', conflict_callback=self.resolve_conflict)
                 
                 self.root.after(0, lambda: self.progress.step(1))
             
@@ -258,5 +332,42 @@ class ProgressGUI:
             if self.auto_close:
                 self.root.after(1000, self.root.destroy)
                 
+                
         except Exception as e:
             self.root.after(0, lambda: self.lbl_current_file.config(text=f"Error: {str(e)}"))
+
+    def resolve_conflict(self, filepath):
+        """
+        Called by converter when a file conflict occurs.
+        Must return 'overwrite', 'skip', or 'rename'.
+        """
+        # If we have a stored 'apply to all' decision, use it.
+        # However, 'apply to all' works best if we store the ACTION.
+        if self.conflict_decision_memory:
+            return self.conflict_decision_memory
+
+        # Event to wait for UI response
+        event = threading.Event()
+        user_response = {} # Dictionary to store result from UI thread
+
+        def show_dialog():
+            dlg = ConflictDialog(self.root, os.path.basename(filepath))
+            self.root.wait_window(dlg) # This blocks the UI thread until closed, which is fine for the UI thread logic here? 
+            # Wait, run_conversion is in a background thread. show_dialog is in UI thread.
+            # wait_window blocks the caller (UI thread).
+            
+            user_response['action'] = dlg.result
+            user_response['apply'] = dlg.apply_to_all
+            event.set()
+
+        self.root.after(0, show_dialog)
+        event.wait()
+        
+        action = user_response.get('action', 'skip')
+        apply = user_response.get('apply', False)
+        
+        if apply:
+            self.conflict_decision_memory = action
+            
+        return action
+

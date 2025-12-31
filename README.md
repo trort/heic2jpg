@@ -6,11 +6,14 @@ A robust, standalone Windows utility to convert `.heic` files to `.jpg`.
 *   **Dual Mode:**
     *   **GUI:** Launch without arguments (double-click) to open the user interface.
     *   **Context Menu:** Right-click any folder and select "Convert HEIC to JPG" to process it immediately.
-*   **Robust Conversion:**
-    *   Handles **Unicode** file paths (Chinese, Korean, emoji, etc.).
-    *   Handles paths with **Spaces**.
-    *   Skips corrupt files without crashing.
-*   **Standalone:** No Python required on the target machine (after building).
+*   **Advanced Control:**
+    *   **Recursion:** Option to scan subfolders (Default: On).
+    *   **Conflict Handling:** Choose to Overwrite, Skip, Rename, or Save to a separate folder.
+    *   **Interactive Mode:** Pop-up dialog to resolve conflicts during conversion.
+*   **Robust & Safe:**
+    *   **Metadata Preservation:** Preserves EXIF data (Date taken, Camera info).
+    *   **Offline:** No cloud upload. All processing happens locally.
+    *   **Uninstaller:** Easily remove the integration.
 
 ## How to Install (End User)
 

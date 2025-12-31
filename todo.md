@@ -49,3 +49,10 @@ Based on `design_doc.md`.
     - [x] Upgrade GUI to modern Windows style (ttk/ttkbootstrap)
     - [x] Implement "Progress Only" GUI mode for Right-Click
     - [x] Update build to use icons and hide console
+
+- [x] **Phase 9: Feature Expansion**
+    - [x] Recursion Toggle
+    - [x] Overwrite / Skip / Rename Policies
+    - [x] Interactive Conflict Solution (Popup)
+    - [x] EXIF Preservation (Always On)
+    - [x] Uninstaller Script

@@ -82,8 +82,3 @@
 1. **The "Space" Test:** Test on a folder path that has spaces in the name (e.g., `C:\Users\My Photos`). This is the #1 point of failure for right-click tools.
 2. **The "Duplicate" Test:** Decide what happens if `image.jpg` already exists. (Skip? Overwrite? Rename to `image_copy.jpg`?).
 3. **The "Large Batch" Test:** Run against a folder with 50+ images to check for memory leaks or crashes.
-
----
-
-**Next Step:**
-Are you ready to begin **Phase 1 and 2** (Setting up the environment and writing the core conversion logic)? I will provide the Python code for that.

@@ -139,4 +139,4 @@ cython_debug/
 Thumbs.db
 
 # Tests
-tests/
+test_photos/

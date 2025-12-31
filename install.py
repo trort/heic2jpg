@@ -46,6 +46,14 @@ def install():
         
         shutil.copy2(source_exe, target_exe)
         print("  [OK] Copied executable.")
+
+        # Copy Uninstaller if present
+        uninstall_name = "uninstall.exe"
+        source_uninstall = os.path.join(current_dir, uninstall_name)
+        target_uninstall = os.path.join(install_dir, uninstall_name)
+        if os.path.exists(source_uninstall):
+            shutil.copy2(source_uninstall, target_uninstall)
+            print("  [OK] Copied uninstaller.")
         
     except Exception as e:
         print(f"Error copying files: {e}")

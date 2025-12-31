@@ -29,8 +29,18 @@ def build():
         'install.py',
         '--name=install',
         '--onefile',
-        '--console',  # Installer still needs console for now/simplicity or can be GUI too, keeping console for debug feedback
+        '--console',
         '--icon=icons/install.ico',
+        '--clean',
+    ])
+
+    print("\nBuilding Uninstaller (uninstall.exe)...")
+    PyInstaller.__main__.run([
+        'uninstall.py',
+        '--name=uninstall',
+        '--onefile',
+        '--console',
+        '--icon=icons/install.ico', # Reusing install icon or could use a trash icon if available
         '--clean',
     ])
     
